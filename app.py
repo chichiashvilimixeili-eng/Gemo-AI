@@ -24,7 +24,7 @@ st.markdown("""
 
 # --- ფუნქციები ---
 def detect_language(text):
-    return 'ka' if re.search('[ა-ჰ]', text) else 'en'
+    return 'en' if re.search('[ა-ჰ]', text) else 'en'
 
 def speak(text, lang):
     tts = gTTS(text=text, lang=lang)
