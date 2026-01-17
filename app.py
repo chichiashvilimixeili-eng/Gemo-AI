@@ -8,10 +8,13 @@ import numpy as np
 import io
 import re
 
+# 
 # --- Gemini კონფიგურაცია ---
 GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
 genai.configure(api_key=GEMINI_API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash') # ვიყენებთ სწრაფ ვერსიას
+
+# შეცვლილია gemini-pro-ზე სტაბილურობისთვის
+model = genai.GenerativeModel('gemini-pro') 
 
 # --- გვერდის კონფიგურაცია ---
 st.set_page_config(page_title="Gemo AI Mobile", page_icon="🤖")
