@@ -1,13 +1,9 @@
 import streamlit as st
-from huggingface_hub import InferenceClient
+from duckduckgo_search import DDGS
 
-# --- ახალი "ტვინის" კონფიგურაცია ---
-# ვიყენებთ Mistral-ს, რომელიც სტაბილურია და ყოველთვის პასუხობს
-client = InferenceClient(api_key="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") # დროებითი გასაღები
-
-st.set_page_config(page_title="Gemo AI v2", page_icon="🚀")
-st.title("🚀 Gemo AI: ახალი ერა")
-st.info("Gemo ახლა Hugging Face-ის ძრავზე მუშაობს!")
+st.set_page_config(page_title="Gemo AI v3", page_icon="🌐")
+st.title("🌐 Gemo AI: ინტერნეტ-ასისტენტი")
+st.caption("ეს ვერსია მუშაობს ყოველგვარი API გასაღებების გარეშე!")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -23,18 +19,19 @@ if prompt := st.chat_input("ჰკითხე რამე Gemo-ს..."):
 
     with st.chat_message("assistant"):
         try:
-            # Gemo აგენერირებს პასუხს
-            response = ""
-            for message in client.chat_completion(
-                model="mistralai/Mistral-7B-Instruct-v0.3",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=500,
-                stream=True,
-            ):
-                token = message.choices[0].delta.content
-                response += token
-
+            with DDGS() as ddgs:
+                # Gemo ეძებს პასუხს ინტერნეტში ქართულ ენაზე
+                search_results = list(ddgs.text(prompt, region='ka-ge', max_results=3))
+                
+                if search_results:
+                    # ვაერთიანებთ ნაპოვნ ინფორმაციას
+                    response = "აი რა ვიპოვე შენთვის:\n\n"
+                    for res in search_results:
+                        response += f"🔹 {res['body']}\n\n"
+                else:
+                    response = "სამწუხაროდ, ამ თემაზე ინფორმაცია ვერ მოვიძიე."
+                
             st.markdown(response)
             st.session_state.messages.append({"role": "assistant", "content": response})
         except Exception as e:
-            st.error(f"ოპერაცია ვერ შესრულდა: {e}")
+            st.error(f"ხარვეზი ძიებისას: {e}")
