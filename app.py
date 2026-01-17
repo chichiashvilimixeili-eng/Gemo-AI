@@ -1,14 +1,14 @@
 import streamlit as st
-import google.generativeai as genai
+import requests
+import json
 
-# კონფიგურაცია
-GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
-genai.configure(api_key=GEMINI_API_KEY, transport='rest')
+# --- კონფიგურაცია ---
+API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
+# პირდაპირი ბმული v1 სტაბილურ ვერსიაზე
+URL = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={API_KEY}"
 
-# მოდელის იძულებითი შერჩევა v1 სტანდარტით
-model = genai.GenerativeModel('gemini-1.5-flash')
-
-st.title("🤖 Gemo AI (Powered by Gemini)")
+st.set_page_config(page_title="Gemo AI", page_icon="🤖")
+st.title("🤖 Gemo AI (Stable Mode)")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -24,9 +24,20 @@ if prompt := st.chat_input("ჰკითხე რამე Gemo-ს..."):
 
     with st.chat_message("assistant"):
         try:
-            # მოთხოვნა v1 ვერსიის გამოყენებით
-            response = model.generate_content(prompt)
-            st.markdown(response.text)
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
+            # პირდაპირი HTTP მოთხოვნა ბიბლიოთეკის გარეშე
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}]
+            }
+            headers = {'Content-Type': 'application/json'}
+            
+            response = requests.post(URL, headers=headers, data=json.dumps(payload))
+            res_json = response.json()
+            
+            # პასუხის ამოღება
+            answer = res_json['candidates'][0]['content']['parts'][0]['text']
+            st.markdown(answer)
+            st.session_state.messages.append({"role": "assistant", "content": answer})
+            
         except Exception as e:
-            st.error(f"კავშირის პრობლემა: {str(e)}")
+            st.error(f"შეცდომა: {str(e)}")
+            st.write("დეტალები:", res_json) # დაგვეხმარება გარკვევაში
