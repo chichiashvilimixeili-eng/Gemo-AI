@@ -12,8 +12,6 @@ import re
 GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
 genai.configure(api_key=GEMINI_API_KEY)
 
-
-
 # --- Gemini კონფიგურაცია ---
 GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
 genai.configure(api_key=GEMINI_API_KEY)
@@ -30,6 +28,7 @@ def gemo_logic(input_text):
         return "ვერ გიპასუხე, სცადე სხვა კითხვა.", "🤔"
     except Exception as e:
         return f"კავშირის პრობლემა: {str(e)}", "⚠️"
+
 
 # შეცვლილია gemini-pro-ზე სტაბილურობისთვის
 model = genai.GenerativeModel('gemini-pro') 
