@@ -1,33 +1,31 @@
 import streamlit as st
 import google.generativeai as genai
-import cv2
-import cvlib as cv
-from cvlib.object_detection import draw_bbox
-from gtts import gTTS
-import numpy as np
-import io
-import re
+from google.generativeai.types import SafetySettingDict
 
-# --- Gemini კონფიგურაცია ---
+# --- Gemini-ს ახალი, სტაბილური კონფიგურაცია ---
 GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
-genai.configure(api_key=GEMINI_API_KEY)
 
-# --- Gemini კონფიგურაცია ---
-GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
-genai.configure(api_key=GEMINI_API_KEY)
+# აქ ვიყენებთ პირდაპირ v1 ვერსიას, რომ 404 აიცილოთ
+genai.configure(api_key=GEMINI_API_KEY, transport='rest')
 
-# ვიყენებთ სტაბილურ მოდელს და ვუთითებთ კავშირის ტიპს (REST)
-model = genai.GenerativeModel('gemini-1.5-flash')
+# მოდელის შექმნა კონკრეტული ვერსიით
+model = genai.GenerativeModel(
+    model_name='gemini-1.5-flash',
+)
 
 def gemo_logic(input_text):
     try:
-        # transport='rest' არის გადამწყვეტი შეცდომის ასაცილებლად
-        response = model.generate_content(input_text, transport='rest')
-        if response.text:
-            return response.text, "🧠"
-        return "ვერ გიპასუხე, სცადე სხვა კითხვა.", "🤔"
+        # მოთხოვნის გაგზავნა
+        response = model.generate_content(input_text)
+        return response.text, "🧠"
     except Exception as e:
-        return f"კავშირის პრობლემა: {str(e)}", "⚠️"
+        # თუ მაინც შეცდომაა, ვცადოთ ალტერნატიული მოდელი
+        try:
+            alt_model = genai.GenerativeModel('gemini-pro')
+            response = alt_model.generate_content(input_text)
+            return response.text, "🧠"
+        except:
+            return f"კავშირის პრობლემა: {str(e)}", "⚠️"
 
 
 # შეცვლილია gemini-pro-ზე სტაბილურობისთვის
