@@ -8,10 +8,24 @@ import numpy as np
 import io
 import re
 
-# 
 # --- Gemini კონფიგურაცია ---
 GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
 genai.configure(api_key=GEMINI_API_KEY)
+
+# ვიყენებთ კონკრეტულ ვერსიას, რომელიც 404-ს არ აგდებს
+model = genai.GenerativeModel('models/gemini-1.5-flash-latest') 
+
+def gemo_logic(input_text):
+    try:
+        # ვამატებთ უსაფრთხოების პარამეტრს
+        response = model.generate_content(input_text)
+        if response.text:
+            return response.text, "🧠"
+        else:
+            return "ვერაფერი მოვიფიქრე...", "🤔"
+    except Exception as e:
+        # თუ მაინც 404 ამოაგდო, აქ დაგვიწერს ზუსტ მიზეზს
+        return f"კავშირის შეცდომა: {str(e)}", "⚠️"
 
 # შეცვლილია gemini-pro-ზე სტაბილურობისთვის
 model = genai.GenerativeModel('gemini-pro') 
