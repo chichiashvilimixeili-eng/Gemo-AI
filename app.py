@@ -1,17 +1,21 @@
 import streamlit as st
 import google.generativeai as genai
-from google.generativeai.types import SafetySettingDict
+from google.api_core import client_options
 
-# --- Gemini-ს ახალი, სტაბილური კონფიგურაცია ---
+# --- Gemini-ს საბოლოო, სტაბილური კონფიგურაცია ---
 GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
 
-# აქ ვიყენებთ პირდაპირ v1 ვერსიას, რომ 404 აიცილოთ
-genai.configure(api_key=GEMINI_API_KEY, transport='rest')
+# ეს ხაზი აიძულებს კოდს გამოიყენოს v1 და არა v1beta
+options = client_options.ClientOptions(api_endpoint="generativelanguage.googleapis.com")
 
-# მოდელის შექმნა კონკრეტული ვერსიით
-model = genai.GenerativeModel(
-    model_name='gemini-1.5-flash',
+genai.configure(
+    api_key=GEMINI_API_KEY,
+    transport='rest',
+    client_options=options
 )
+
+# ვიყენებთ gemini-1.5-flash-ს, რომელიც ყველაზე ახალი და სტაბილურია
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 def gemo_logic(input_text):
     try:
@@ -19,13 +23,8 @@ def gemo_logic(input_text):
         response = model.generate_content(input_text)
         return response.text, "🧠"
     except Exception as e:
-        # თუ მაინც შეცდომაა, ვცადოთ ალტერნატიული მოდელი
-        try:
-            alt_model = genai.GenerativeModel('gemini-pro')
-            response = alt_model.generate_content(input_text)
-            return response.text, "🧠"
-        except:
-            return f"კავშირის პრობლემა: {str(e)}", "⚠️"
+        # თუ მაინც შეცდომაა, აქ დაგვიწერს ზუსტ მიზეზს
+        return f"კავშირის პრობლემა: {str(e)}", "⚠️"
 
 
 # შეცვლილია gemini-pro-ზე სტაბილურობისთვის
