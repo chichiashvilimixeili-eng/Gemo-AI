@@ -1,18 +1,13 @@
 import streamlit as st
 import google.generativeai as genai
-from google.generativeai import client
 
-# --- Gemini-ს იძულებითი სტაბილური კონფიგურაცია ---
+# კონფიგურაცია
 GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
-
-# ჩვენ ხელით ვუთითებთ 'v1' ვერსიას, რომ v1beta-ს პრობლემა მოვხსნათ
-client.DEFAULT_API_VERSION = 'v1' 
 genai.configure(api_key=GEMINI_API_KEY, transport='rest')
 
-# ვიყენებთ მოდელის სრულ და ზუსტ სახელს
-model = genai.GenerativeModel('models/gemini-1.5-flash')
+# მოდელის იძულებითი შერჩევა v1 სტანდარტით
+model = genai.GenerativeModel('gemini-1.5-flash')
 
-# --- ინტერფეისი და ლოგიკა ---
 st.title("🤖 Gemo AI (Powered by Gemini)")
 
 if "messages" not in st.session_state:
@@ -29,11 +24,9 @@ if prompt := st.chat_input("ჰკითხე რამე Gemo-ს..."):
 
     with st.chat_message("assistant"):
         try:
-            # აქ ხდება პასუხის გამოთხოვა
+            # მოთხოვნა v1 ვერსიის გამოყენებით
             response = model.generate_content(prompt)
             st.markdown(response.text)
             st.session_state.messages.append({"role": "assistant", "content": response.text})
         except Exception as e:
-            # თუ მაინც შეცდომაა, ვცდილობთ ალტერნატიულ გზას
-            st.error(f"შეცდომა: {str(e)}")
-            st.info("სცადეთ გვერდის გადატვირთვა (Refresh)")
+            st.error(f"კავშირის პრობლემა: {str(e)}")
