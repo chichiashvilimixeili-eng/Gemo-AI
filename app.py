@@ -13,22 +13,22 @@ GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
 genai.configure(api_key=GEMINI_API_KEY)
 
 
+
 # --- Gemini კონფიგურაცია ---
 GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
 genai.configure(api_key=GEMINI_API_KEY)
 
-# ვიყენებთ უახლეს მოდელს და სტაბილურ კავშირს
+# ვიყენებთ სტაბილურ მოდელს და ვუთითებთ კავშირის ტიპს (REST)
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 def gemo_logic(input_text):
     try:
-        # transport='rest' აგვარებს v1beta-ს პრობლემას
+        # transport='rest' არის გადამწყვეტი შეცდომის ასაცილებლად
         response = model.generate_content(input_text, transport='rest')
         if response.text:
             return response.text, "🧠"
         return "ვერ გიპასუხე, სცადე სხვა კითხვა.", "🤔"
     except Exception as e:
-        # თუ მაინც გაჭედა, დაგვიწერს ზუსტ შეცდომას
         return f"კავშირის პრობლემა: {str(e)}", "⚠️"
 
 # შეცვლილია gemini-pro-ზე სტაბილურობისთვის
