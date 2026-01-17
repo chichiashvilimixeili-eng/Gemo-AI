@@ -1,30 +1,26 @@
 import streamlit as st
-import google.generativeai as genai
-from google.api_core import client_options
 
-# --- Gemini-ს საბოლოო, სტაბილური კონფიგურაცია ---
+import google.generativeai as genai
+# --- Gemini-ს საბოლოო კონფიგურაცია ---
 GEMINI_API_KEY = "AIzaSyCelk4Hij2vXuwJgbNDwrv1BVmk1kDqBo8"
 
-# ეს ხაზი აიძულებს კოდს გამოიყენოს v1 და არა v1beta
-options = client_options.ClientOptions(api_endpoint="generativelanguage.googleapis.com")
+# ვაკონფიგურირებთ პირდაპირ REST ტრანსპორტით
+genai.configure(api_key=GEMINI_API_KEY, transport='rest')
 
-genai.configure(
-    api_key=GEMINI_API_KEY,
-    transport='rest',
-    client_options=options
-)
-
-# ვიყენებთ gemini-1.5-flash-ს, რომელიც ყველაზე ახალი და სტაბილურია
-model = genai.GenerativeModel('gemini-1.5-flash')
+# ვიყენებთ მოდელის სრულ სახელს
+model = genai.GenerativeModel(model_name='models/gemini-1.5-flash-latest')
 
 def gemo_logic(input_text):
     try:
-        # მოთხოვნის გაგზავნა
+        # მოთხოვნა
         response = model.generate_content(input_text)
-        return response.text, "🧠"
+        if response and response.text:
+            return response.text, "🧠"
+        else:
+            return "Gemo-მ პასუხი ვერ იპოვა...", "🤔"
     except Exception as e:
-        # თუ მაინც შეცდომაა, აქ დაგვიწერს ზუსტ მიზეზს
-        return f"კავშირის პრობლემა: {str(e)}", "⚠️"
+        # თუ მაინც 404 ამოაგდო, ესე იგი API Key-ს შეზღუდვაა
+        return f"კავშირის შეცდომა: {str(e)}", "⚠️"
 
 
 # შეცვლილია gemini-pro-ზე სტაბილურობისთვის
